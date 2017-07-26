@@ -3,19 +3,18 @@
  *  Allow LCD display and remote control and display via Ble with Blynk App
  *  See library license and credits below
  */
-
-
 #include <BlynkSimpleCurieBLE.h>
 #include <CurieBLE.h>
 #include <Adafruit_NeoPixel.h>
 
 
 #define DEBUG 1
-
-#define HEADLIGHT_PIN 8
  
 #define NUM_LEDS 75      // Set to number of addressable RGB leds present
+
 #define LED_DATAPIN 6     
+#define HEADLIGHT_PIN 8
+
 
 //Comment out if not using BLYNK BLE display control app
 #define USE_BLYNK_GUI_APP 1
@@ -50,11 +49,13 @@ float gDISTANCE = 0;
       lcd.setCursor(0,0);
       outputMsg = "SPEED: ";
       outputMsg += String(velocity);
+      outputMsg += (" km  ");
       outputMsg += "\0";
       lcd.print(outputMsg);
       
       outputMsg = "DIST : ";
       outputMsg += String(distance);
+      outputMsg += (" km  ");
       outputMsg += "\0";
       lcd.setCursor(0,1);
       lcd.print(outputMsg);
@@ -64,14 +65,14 @@ float gDISTANCE = 0;
     if (on)
       lcd.setRGB(100,0,0);
     else
-      lcd.setRGB(50,50,50);   
+      lcd.setRGB(30,30,30);   
   }
 
   void turnOnGreen(bool on) {
     if (on)
       lcd.setRGB(0,100,0);
     else
-      lcd.setRGB(50,50,50);   
+      lcd.setRGB(30,30,30);   
   }
 #endif
 
@@ -86,12 +87,10 @@ void setup()
   #ifdef lcd_display
     lcd.begin(16, 2);
     lcd.print("BIke LED");
-    lcd.print(" km");
 
     lcd.setCursor(0,1);
     lcd.print("Display ");
     lcd.setRGB(100, 100, 100);
-    lcd.print(" km");
   #endif
 
   // Open serial port and tell the controller we're ready.
@@ -139,7 +138,11 @@ void loop()
 
 BLYNK_CONNECTED() {
     Blynk.syncAll();
-          Serial.println("=CONNECTED=");
+    #ifdef lcd_display
+    lcd.begin(0, 2);
+    lcd.print("GUI connected");
+    lcd.setRGB(0, 0, 100);
+    #endif
 }
 
 // Update speed to speed Widget
@@ -155,7 +158,9 @@ BLYNK_READ(V1) {
 
 // turn Headlight Relay On / Off
 BLYNK_READ(V2) {
-  analogWrite(HEADLIGHT_PIN,0);
+  bool lightOn =  (digitalRead(HEADLIGHT_PIN) == HIGH);
+  // Toggle light
+  digitalWrite(HEADLIGHT_PIN,lightOn?HIGH:LOW);
 }
 
 //Read syle slider value
@@ -185,6 +190,9 @@ BLYNK_WRITE(V5)   {
         Serial.print(g);
         Serial.print(b);
     }    
+    #ifdef lcd_display
+    lcd.setRGB(r,g,b);
+    #endif
     BaseLedColor =  leds.Color(r,g,b);
     ColorEffect = 4;
 }

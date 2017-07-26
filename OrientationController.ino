@@ -9,6 +9,7 @@
 */
 
 #include "CurieIMU.h"
+#define MIN_MOVEMENT  7
 
 void OrientationSetup() {
   
@@ -20,7 +21,7 @@ void OrientationSetup() {
 
 int ToColor(float val) {
   int color = 0;
-  if (abs(val) > 5) {
+  if (abs(val) > MIN_MOVEMENT) {
     color = abs(val);
     if (val > 0)
      ;

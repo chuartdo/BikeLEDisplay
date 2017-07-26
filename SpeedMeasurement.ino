@@ -29,7 +29,7 @@ void SpeedSetup() {
  // if (DEBUG) Serial.println(maxRevolutions);
   attachInterrupt(digitalPinToInterrupt(REEDSWITCH_PIN),addRevolutions,CHANGE);
   attachInterrupt(digitalPinToInterrupt(BREAK_PIN),breakApplied,CHANGE);
-  attachInterrupt(digitalPinToInterrupt(EFFECT_PIN),changeEffects,CHANGE);
+  attachInterrupt(digitalPinToInterrupt(EFFECT_PIN),changeEffects,RISING);
 
   prevTime = millis();
 }
@@ -41,7 +41,7 @@ void SpeedSetup() {
      gSPEED_VAL = map(revolutions, 0, MAX_REVOLUTION_SEC, 0, 1024);
      gSPEED_KPH =  map(revolutions, 0, MAX_REVOLUTION_SEC, 0, WHEEL_DIAMETER * 3.1415 * 3.600 * MAX_REVOLUTION_SEC );
      if (gSPEED_VAL > 0)
-        gDISTANCE += gSPEED_KPH / 3600;
+        gDISTANCE += gSPEED_KPH / 36000;
     
     if (DEBUG) {
       Serial.println("CT");
@@ -58,8 +58,14 @@ void SpeedSetup() {
 void changeEffects() {
  
  if(ColorEffect++ > 9)
-   ColorEffect = 0;
+     ColorEffect = 0;
+ #ifdef lcd_display 
  turnOnGreen(digitalRead(EFFECT_PIN) == HIGH);
+ lcd.begin(0, 2);
+ lcd.print("  Light Effect ");
+ lcd.print(ColorEffect);
+ #endif
+ if (DEBUG) Serial.println(ColorEffect); 
 
 }
 
@@ -67,7 +73,9 @@ void breakApplied() {
  gBreakON= (digitalRead(BREAK_PIN) == LOW);
  
  if (DEBUG) Serial.print(gBreakON?"B":"F"); 
- turnOnRed(gBreakON);
+   #ifdef lcd_display 
+    turnOnRed(gBreakON);
+   #endif
 }
 
 void addRevolutions(){

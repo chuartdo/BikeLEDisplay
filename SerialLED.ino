@@ -36,10 +36,9 @@ void LedLoop(){
   if (ledPos > NUM_LEDS)
     ledPos = 0;
  
-  uint16_t i, j;
+  uint16_t i;
 
 // Draw Rainbow
- // for(j=0; j<256 * 5; j++) { // 5 cycles of all colors on wheel
     for(i=0; i< leds.numPixels(); i++) {
 
       if (gBreakON) {  
@@ -62,7 +61,7 @@ void LedLoop(){
       // rainbow background color light every 3 pixel
       leds.setPixelColor(i, Wheel(((i * 256 / leds.numPixels()) + i) & 255));
     }
- // }
+
   
   if (gSPEED_VAL > 0) {
     // Slower the speed, larger the gap
